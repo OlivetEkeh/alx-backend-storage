@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
 """
-Main file to test the Cache class.
+Main file to test the Cache class with call_history decorator.
 """
 
-import redis
-from exercise import Cache
+Cache = __import__('exercise').Cache
 
 cache = Cache()
 
-TEST_CASES = {
-    b"foo": None,
-    123: int,
-    "bar": lambda d: d.decode("utf-8")
-}
+s1 = cache.store("first")
+print(s1)
+s2 = cache.store("secont")
+print(s2)
+s3 = cache.store("third")
+print(s3)
 
-for value, fn in TEST_CASES.items():
-    key = cache.store(value)
-    retrieved_value = cache.get(key, fn=fn)
-    assert retrieved_value == value, f"Expected {value}, got {retrieved_value}"
+inputs = cache._redis.lrange("{}:inputs".format(cache.store.__qualname__), 0, -1)
+outputs = cache._redis.lrange("{}:outputs".format(cache.store.__qualname__), 0, -1)
 
-print("All test cases passed!")
+print("inputs: {}".format(inputs))
+print("outputs: {}".format(outputs))
