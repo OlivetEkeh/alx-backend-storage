@@ -117,3 +117,22 @@ class Cache:
             Optional[int]: The retrieved integer data.
         """
         return self.get(key, lambda d: int(d))
+
+def replay(method: Callable):
+    """
+    Display the history of calls of a particular function.
+
+    Args:
+        method (Callable): The function to replay the history of.
+    """
+    self = method.__self__
+    key = method.__qualname__
+    input_key = f"{key}:inputs"
+    output_key = f"{key}:outputs"
+
+    inputs = self._redis.lrange(input_key, 0, -1)
+    outputs = self._redis.lrange(output_key, 0, -1)
+
+    print(f"{key} was called {len(inputs)} times:")
+    for inp, out in zip(inputs, outputs):
+        print(f"{key}(*{inp.decode('utf-8')}) -> {out.decode('utf-8')}")
